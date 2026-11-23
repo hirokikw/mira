@@ -12,29 +12,55 @@ MIRAは、JavaとSpring Bootを使用して開発する、学習用の簡易ユ�
 - Dockerによる開発環境の構築
 - Webサーバーとアプリケーションサーバーの連携
 
-## 2. 技術スタック
+## 2. ディレクトリ構成
+
+リポジトリの主要なディレクトリとファイルは次のとおりです。Docker 開発環境の詳細は [Docker 開発環境](docker/README.md) を参照してください。
+
+```text
+mira/
+├── app/
+│   ├── pom.xml
+│   └── src/
+│       ├── main/
+│       │   ├── java/com/examplecompany/mira/
+│       │   │   ├── api/       REST API のコントローラー
+│       │   │   ├── web/       画面のコントローラー
+│       │   │   ├── batch/     ユーザー自動削除ジョブ
+│       │   │   └── common/    ユーザー管理の共通処理
+│       │   └── resources/    設定や画面テンプレート
+│       └── test/
+│           ├── java/com/examplecompany/mira/  テストコード
+│           └── resources/                    テスト用の設定やデータ
+└── docker/
+```
+
+## 3. 技術スタック
 
 | 分類           | 技術                      |
 | ------------ | ----------------------- |
 | 言語           | Java 17                 |
 | フレームワーク      | Spring Boot             |
 | Webサーバー      | Apache HTTP Server      |
-| アプリケーションサーバー | Apache Tomcat           |
+| ロードバランサー | HAProxy |
+| アプリケーションサーバー | Apache Tomcat |
 | データベース       | PostgreSQL              |
 | ビルドツール       | Maven                   |
 | コンテナ         | Docker / Docker Compose |
 
-## 3. システム構成
+## 4. システム構成
 
 ```mermaid
 flowchart TD
-    browser["Client (Browser)"] --> httpd["Apache HTTP Server"]
-    httpd --> tomcat["Apache Tomcat"]
-    tomcat --> app["Spring Boot Application"]
-    app --> db["PostgreSQL"]
+    browser["Client (Browser)"] --> lb["HAProxy"]
+    lb --> httpd1["Apache HTTP Server 1"]
+    lb --> httpd2["Apache HTTP Server 2"]
+    httpd1 --> tomcat1["Tomcat 1 / Spring Boot"]
+    httpd2 --> tomcat2["Tomcat 2 / Spring Boot"]
+    tomcat1 --> db["PostgreSQL"]
+    tomcat2 --> db
 ```
 
-## 4. 主な機能
+## 5. 主な機能
 
 | 機能 | 種別 | 説明 |
 | --- | --- | --- |
@@ -47,13 +73,13 @@ flowchart TD
 | ユーザー削除 | 画面機能・API機能 | 登録済みユーザーの削除 |
 | ユーザー自動削除 | バッチ機能 | 最終ログイン日から90日以上経過したユーザーを削除 |
 
-## 5. 開発環境
+## 6. 開発環境
 
-Docker Composeを利用し、Webサーバー、アプリケーションサーバー、データベースをコンテナとして管理する予定です。
+Docker Composeを利用し、ロードバランサー、Webサーバー、アプリケーションサーバー、データベースをコンテナとして管理する予定です。詳細は [Docker 開発環境](docker/README.md) を参照してください。
 
 起動方法はDocker Composeの構成確定後に追記します。
 
-## 6. 開発方針
+## 7. 開発方針
 
 1. Dockerによる開発環境構築
 2. Spring Bootアプリケーション作成
@@ -62,6 +88,6 @@ Docker Composeを利用し、Webサーバー、アプリケーションサーバ
 5. 画面実装
 6. 単体テスト・結合テスト
 
-## 7. ステータス
+## 8. ステータス
 
 開発準備中
