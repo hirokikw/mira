@@ -1,0 +1,85 @@
+# MIRA 開発環境（Docker Compose）
+#
+# 本ファイル作成時のインプット（docker/README.md）:
+#   No.1 … [システム構成図](../README.md) — haproxy / httpd×2 / tomcat×2 / postgres のサービス構成
+#   No.2 … 技術スタック（§No.2 採用バージョンとイメージ）— 各サービスの image タグ
+#   No.3 … ネットワーク・ポート設計 — ホスト公開ポート、コンテナ間接続先
+#   No.4 … アプリケーションのビルド・配置仕様 — build.context、Tomcat URL・ルートパス
+#   No.5 … DB 接続・データ永続化の設計 — JDBC 環境変数、postgres_data
+#   No.6 … 起動・準備完了条件 — postgres ヘルスチェック、tomcat の depends_on
+#   No.7 … haproxy.cfg の作成 — ./docker/haproxy/haproxy.cfg のマウント
+#   No.8 … Dockerfile の作成 — tomcat イメージの build 定義
+#   No.9 … Apache・Tomcat 設定 — mira.conf テンプレートと起動コマンド
+#
+# No.3: 全サービスは Compose の既定ネットワークに接続する（明示定義なし）。
+
+services:
+  haproxy:
+    image: haproxy:3.2 # No.2
+    ports:
+      - "127.0.0.1:8080:8080" # No.3
+    volumes: # No.7
+      - type: bind
+        source: ./docker/haproxy/haproxy.cfg
+        target: /usr/local/etc/haproxy/haproxy.cfg
+        read_only: true
+        bind:
+          create_host_path: false
+
+  httpd-1:
+    image: httpd:2.4 # No.2
+    environment:
+      MIRA_TOMCAT_URL: http://tomcat-1:8080/ # No.3、No.4、No.9
+    command: &httpd-command # No.9
+      - /bin/sh
+      - -c
+      - |-
+        envsubst '$$MIRA_TOMCAT_URL' < /usr/local/apache2/conf/mira.conf.template > /tmp/httpd-mira.conf
+        exec httpd-foreground -f /tmp/httpd-mira.conf
+    volumes: &httpd-volumes # No.9
+      - type: bind
+        source: ./docker/httpd/mira.conf
+        target: /usr/local/apache2/conf/mira.conf.template
+        read_only: true
+        bind:
+          create_host_path: false
+
+  httpd-2:
+    image: httpd:2.4 # No.2
+    environment:
+      MIRA_TOMCAT_URL: http://tomcat-2:8080/ # No.3、No.4、No.9
+    command: *httpd-command # No.9
+    volumes: *httpd-volumes # No.9
+
+  tomcat-1: &tomcat-service
+    image: mira-tomcat:local # No.4、No.8（build 成果）
+    build: # No.8（context は No.4）
+      context: .
+      dockerfile: docker/tomcat/Dockerfile
+    environment: # No.5
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mira
+      SPRING_DATASOURCE_USERNAME: mira
+      SPRING_DATASOURCE_PASSWORD: "${MIRA_DB_PASSWORD:?Set MIRA_DB_PASSWORD}"
+    depends_on: # No.6
+      postgres:
+        condition: service_healthy
+
+  tomcat-2: *tomcat-service # No.1、No.4、No.5、No.6、No.8
+
+  postgres:
+    image: postgres:17-bookworm # No.2
+    environment: # No.5
+      POSTGRES_DB: mira
+      POSTGRES_USER: mira
+      POSTGRES_PASSWORD: "${MIRA_DB_PASSWORD:?Set MIRA_DB_PASSWORD}"
+    volumes: # No.5
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck: # No.6
+      test: [CMD, pg_isready, -h, "127.0.0.1", -p, "5432", -U, mira, -d, mira]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+      start_period: 30s
+
+volumes:
+  postgres_data: # No.5
