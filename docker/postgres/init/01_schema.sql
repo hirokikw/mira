@@ -10,7 +10,7 @@ CREATE TABLE department (
     CONSTRAINT department_department_code_key UNIQUE (department_code)
 );
 
-CREATE TABLE user (
+CREATE TABLE "user" (
     user_id         BIGSERIAL PRIMARY KEY,
     department_id   BIGINT NOT NULL,
     login_id        VARCHAR(64) NOT NULL,
@@ -27,4 +27,4 @@ CREATE TABLE user (
         ON DELETE RESTRICT
 );
 
-CREATE INDEX user_department_id_idx ON user (department_id);
+CREATE INDEX user_department_id_idx ON "user" (department_id);
