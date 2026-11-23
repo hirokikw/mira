@@ -57,8 +57,8 @@ services:
     build: # No.8（context は No.4）
       context: .
       dockerfile: docker/tomcat/Dockerfile
-    env_file: # No.5（password/db.env の SPRING_DATASOURCE_PASSWORD）
-      - ./password/db.env
+    env_file: # No.5（docker/confidential/db.env の SPRING_DATASOURCE_PASSWORD）
+      - ./docker/confidential/db.env
     environment: # No.5
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mira
       SPRING_DATASOURCE_USERNAME: mira
@@ -70,8 +70,8 @@ services:
 
   postgres:
     image: postgres:17-bookworm # No.2
-    env_file: # No.5（password/db.env の POSTGRES_PASSWORD）
-      - ./password/db.env
+    env_file: # No.5（docker/confidential/db.env の POSTGRES_PASSWORD）
+      - ./docker/confidential/db.env
     environment: # No.5
       POSTGRES_DB: mira
       POSTGRES_USER: mira

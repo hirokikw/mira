@@ -1,2 +1,2 @@
-# リポジトリに含めないフォルダ
-password/
+# DB 接続パスワード（Compose の env_file）。雛形は docker/confidential/db.env.example をコミットする。
+docker/confidential/db.env

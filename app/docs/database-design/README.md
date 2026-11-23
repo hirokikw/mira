@@ -101,7 +101,7 @@ erDiagram
 | --- | --- |
 | ログイン（業務フロー a） | `user` を `login_id` で参照し、`password_hash` を照合。成功時に `last_login_datetime` を更新 |
 | 部門・ユーザーの管理 | `department` / `user` に対する CRUD（機能設計で画面・API を定義） |
-| パスワード | DB 接続パスワードは `password/db.env`（No.5）。ログイン用パスワードは `password_hash` のみ保存 |
+| パスワード | DB 接続パスワードは `docker/confidential/db.env`（No.5）。ログイン用パスワードは `password_hash` のみ保存 |
 | 管理者 | `authority_code` = `ADMIN`。開発環境の初期データは [`02_seed_admin.sql`](../../../docker/postgres/init/02_seed_admin.sql) |
 
 ## 6. DDL

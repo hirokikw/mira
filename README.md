@@ -86,26 +86,26 @@ flowchart TD
 
 ### 手順 1: DB 用パスワードファイルを用意する
 
-DB 接続パスワードは **`password/db.env`** に書く（`password/` は `.gitignore` 対象でコミットしない）。
+DB 接続パスワードは **`docker/confidential/db.env`** に置く（**`db.env` のみ** Git にコミットしない。共有ファイルサーバーから取得してもよい）。
 
-初回のみ、例をコピーして値を編集する。
+初回のみ、雛形をコピーして値を編集する。
 
 **PowerShell（Windows）**
 
 ```powershell
-New-Item -ItemType Directory -Force -Path password | Out-Null
-Copy-Item docker\password\db.env.example password\db.env
-notepad password\db.env
+New-Item -ItemType Directory -Force -Path docker\confidential | Out-Null
+Copy-Item docker\confidential\db.env.example docker\confidential\db.env
+notepad docker\confidential\db.env
 ```
 
 **bash（Linux / macOS）**
 
 ```bash
-mkdir -p password
-cp docker/password/db.env.example password/db.env
+mkdir -p docker/confidential
+cp docker/confidential/db.env.example docker/confidential/db.env
 ```
 
-`password/db.env` の **`POSTGRES_PASSWORD`** と **`SPRING_DATASOURCE_PASSWORD`** を同じ値に設定する（Compose が各コンテナへ渡す）。
+`docker/confidential/db.env` の **`POSTGRES_PASSWORD`** と **`SPRING_DATASOURCE_PASSWORD`** を同じ値に設定する（Compose が各コンテナへ渡す）。
 
 ### 手順 2: コンテナを起動する
 
