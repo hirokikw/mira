@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' | MIRA'">プレースホルダー | MIRA</title>
+    <link rel="stylesheet" th:href="@{/css/mira.css}">
+</head>
+<body>
+<main class="card card-medium">
+    <h1 class="page-title" th:text="${title}">タイトル</h1>
+    <p th:text="${message}">メッセージ</p>
+    <p><a th:href="@{/menu}" class="btn btn-secondary">メインメニューへ</a></p>
+</main>
+</body>
+</html>

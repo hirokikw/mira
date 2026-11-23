@@ -77,9 +77,86 @@ flowchart TD
 
 ## 6. 開発環境
 
-Docker Compose を利用し、ロードバランサー、Web サーバー、アプリケーションサーバー、データベースをコンテナとして管理します。`compose.yaml` および `docker/` 配下の設定は、この前提で定義しています。
+リポジトリのルート（`compose.yaml` があるディレクトリ）で作業する。コンテナ構成の詳細は [Docker 開発環境](docker/README.md) を参照する。
 
-実行環境（Linux）の詳細は §3 技術スタックおよび [Docker 開発環境](docker/README.md) の「実行環境の想定」を参照してください。起動方法の概要は Docker Compose の構成確定後に追記します。
+### 前提
+
+- [Docker Engine](https://docs.docker.com/engine/install/) と Docker Compose（`docker compose` コマンド）が使えること
+- ホストの **8080 番ポート** が未使用であること（HAProxy の公開ポート）
+
+### 手順 1: DB 用パスワードファイルを用意する
+
+DB 接続パスワードは **`password/db.env`** に書く（`password/` は `.gitignore` 対象でコミットしない）。
+
+初回のみ、例をコピーして値を編集する。
+
+**PowerShell（Windows）**
+
+```powershell
+New-Item -ItemType Directory -Force -Path password | Out-Null
+Copy-Item docker\password\db.env.example password\db.env
+notepad password\db.env
+```
+
+**bash（Linux / macOS）**
+
+```bash
+mkdir -p password
+cp docker/password/db.env.example password/db.env
+```
+
+`password/db.env` の **`POSTGRES_PASSWORD`** と **`SPRING_DATASOURCE_PASSWORD`** を同じ値に設定する（Compose が各コンテナへ渡す）。
+
+### 手順 2: コンテナを起動する
+
+初回または `app/` の変更後はイメージのビルドを含める。
+
+```bash
+docker compose up --build -d
+```
+
+2 回目以降の起動のみなら次でもよい。
+
+```bash
+docker compose up -d
+```
+
+起動する主なサービスは HAProxy、Apache HTTP Server（2 台）、Tomcat（2 台、WAR 展開）、PostgreSQL である。Tomcat は PostgreSQL のヘルスチェック通過後に起動する。初回起動は WAR のビルドと DB 初期化のため数分かかることがある。
+
+ログを追う場合:
+
+```bash
+docker compose logs -f tomcat-1
+```
+
+アプリがデプロイされると、Tomcat のログに Spring Boot の起動完了が出る。
+
+### 手順 3: ログイン画面を開く
+
+ブラウザーで次の URL を開く。
+
+[http://127.0.0.1:8080/login](http://127.0.0.1:8080/login)
+
+（`localhost:8080` でもよい。ホスト側は `127.0.0.1:8080` → HAProxy → Apache → Tomcat へ中継される。）
+
+### 手順 4: ログイン試行（開発用）
+
+PostgreSQL 初回起動時に `docker/postgres/init/02_seed_admin.sql` で投入される管理者ユーザーを使う。
+
+| 項目 | 値 |
+| --- | --- |
+| ログイン ID | `admin` |
+| パスワード | `admin` |
+
+認証に成功するとメインメニュー（`/menu`）へ遷移する。
+
+### 停止
+
+```bash
+docker compose down
+```
+
+データは名前付きボリューム `postgres_data` に残る。DB を初期状態からやり直す場合は `docker compose down -v` でボリュームも削除してから再度 `up` する（**データは消える**）。
 
 ## 7. 開発方針
 

@@ -1,0 +1,13 @@
+c:\workspace\mira\app\src\main\java\com\examplecompany\mira\common\config\SecurityConfig.java
+c:\workspace\mira\app\src\main\java\com\examplecompany\mira\common\domain\Department.java
+c:\workspace\mira\app\src\main\java\com\examplecompany\mira\common\domain\User.java
+c:\workspace\mira\app\src\main\java\com\examplecompany\mira\common\repository\UserRepository.java
+c:\workspace\mira\app\src\main\java\com\examplecompany\mira\common\security\LoginSuccessHandler.java
+c:\workspace\mira\app\src\main\java\com\examplecompany\mira\common\security\MiraUserDetails.java
+c:\workspace\mira\app\src\main\java\com\examplecompany\mira\common\security\MiraUserDetailsService.java
+c:\workspace\mira\app\src\main\java\com\examplecompany\mira\MiraApplication.java
+c:\workspace\mira\app\src\main\java\com\examplecompany\mira\MiraServletInitializer.java
+c:\workspace\mira\app\src\main\java\com\examplecompany\mira\web\HomeController.java
+c:\workspace\mira\app\src\main\java\com\examplecompany\mira\web\LoginController.java
+c:\workspace\mira\app\src\main\java\com\examplecompany\mira\web\MenuController.java
+c:\workspace\mira\app\src\main\java\com\examplecompany\mira\web\PlaceholderWebController.java

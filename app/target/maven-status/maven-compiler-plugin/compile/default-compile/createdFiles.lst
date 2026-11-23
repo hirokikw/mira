@@ -1,0 +1,13 @@
+com\examplecompany\mira\web\PlaceholderWebController.class
+com\examplecompany\mira\web\MenuController.class
+com\examplecompany\mira\MiraApplication.class
+com\examplecompany\mira\web\LoginController.class
+com\examplecompany\mira\common\security\MiraUserDetailsService.class
+com\examplecompany\mira\common\security\MiraUserDetails.class
+com\examplecompany\mira\common\config\SecurityConfig.class
+com\examplecompany\mira\common\repository\UserRepository.class
+com\examplecompany\mira\common\security\LoginSuccessHandler.class
+com\examplecompany\mira\common\domain\Department.class
+com\examplecompany\mira\web\HomeController.class
+com\examplecompany\mira\common\domain\User.class
+com\examplecompany\mira\MiraServletInitializer.class

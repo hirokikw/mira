@@ -119,7 +119,7 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    env["開発者の環境変数<br/>MIRA_DB_PASSWORD"] --> compose["Docker Compose"]
+    env["password/db.env"] --> compose["Docker Compose"]
     subgraph network["Compose ネットワーク"]
         app1["Spring Boot / tomcat-1"] -->|"JDBC / ユーザー mira"| db["PostgreSQL 17<br/>postgres:5432 / DB mira"]
         app2["Spring Boot / tomcat-2"] -->|"JDBC / ユーザー mira"| db
@@ -136,9 +136,9 @@ flowchart LR
 | 接続先 | `jdbc:postgresql://postgres:5432/mira` | `tomcat-1` / `tomcat-2` の `SPRING_DATASOURCE_URL` | 両系統が同一 DB `mira` に接続。Compose ネットワーク内 |
 | DB 名 | `mira` | `postgres` の `POSTGRES_DB` | [PostgreSQL 公式イメージ](https://hub.docker.com/_/postgres) |
 | 接続ユーザー | `mira` | `postgres` の `POSTGRES_USER`、両 Tomcat の `SPRING_DATASOURCE_USERNAME` | 初回起動時に公式イメージが作成するユーザーをアプリ接続にも使用 |
-| パスワード | 開発者の `MIRA_DB_PASSWORD` | `postgres` の `POSTGRES_PASSWORD`、両 Tomcat の `SPRING_DATASOURCE_PASSWORD` | Compose の変数展開で必須。実値はリポジトリに記載しない |
+| パスワード | `password/db.env` | `postgres` の `POSTGRES_PASSWORD`、両 Tomcat の `SPRING_DATASOURCE_PASSWORD` | 各サービスの `env_file`。例は `docker/password/db.env.example` |
 | データの保存先 | 名前付きボリューム `postgres_data` → `/var/lib/postgresql/data` | `postgres` | コンテナ再作成後も DB データを保持 |
-| 初期化とパスワード変更 | `POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD` はデータ領域が空の初回起動時のみ有効 | `postgres` | 既存データを残してパスワードを変える場合は DB 内のユーザーと `MIRA_DB_PASSWORD` の両方を更新 |
+| 初期化とパスワード変更 | `POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD` はデータ領域が空の初回起動時のみ有効 | `postgres` | 既存データを残してパスワードを変える場合は DB 内のユーザーと `password/db.env` の両方を更新 |
 | スキーマ DDL | `docker/postgres/init/*.sql` を `/docker-entrypoint-initdb.d` にマウント | `postgres` | 初回起動時のみ実行。論理定義は [DB 設計](../app/docs/database-design/README.md) |
 
 ### No.6 起動・準備完了条件
