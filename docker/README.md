@@ -32,7 +32,8 @@ mira/
     │   └── Dockerfile
     └── postgres/
         └── init/
-            └── 01_schema.sql    DB スキーマ DDL（初回起動時に適用）
+            ├── 01_schema.sql    テーブル DDL
+            └── 02_seed_admin.sql    初期管理者データ（ADMIN）
 ```
 
 ## `compose.yaml` の作成に必要なインプット資料
