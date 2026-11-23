@@ -75,6 +75,12 @@ services:
       POSTGRES_PASSWORD: "${MIRA_DB_PASSWORD:?Set MIRA_DB_PASSWORD}"
     volumes: # No.5
       - postgres_data:/var/lib/postgresql/data
+      - type: bind
+        source: ./docker/postgres/init
+        target: /docker-entrypoint-initdb.d
+        read_only: true
+        bind:
+          create_host_path: false
     healthcheck: # No.6
       test: [CMD, pg_isready, -h, "127.0.0.1", -p, "5432", -U, mira, -d, mira]
       interval: 5s

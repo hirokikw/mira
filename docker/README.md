@@ -28,8 +28,11 @@ mira/
     │   └── haproxy.cfg
     ├── httpd/
     │   └── mira.conf
-    └── tomcat/
-        └── Dockerfile
+    ├── tomcat/
+    │   └── Dockerfile
+    └── postgres/
+        └── init/
+            └── 01_schema.sql    DB スキーマ DDL（初回起動時に適用）
 ```
 
 ## `compose.yaml` の作成に必要なインプット資料
@@ -135,6 +138,7 @@ flowchart LR
 | パスワード | 開発者の `MIRA_DB_PASSWORD` | `postgres` の `POSTGRES_PASSWORD`、両 Tomcat の `SPRING_DATASOURCE_PASSWORD` | Compose の変数展開で必須。実値はリポジトリに記載しない |
 | データの保存先 | 名前付きボリューム `postgres_data` → `/var/lib/postgresql/data` | `postgres` | コンテナ再作成後も DB データを保持 |
 | 初期化とパスワード変更 | `POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD` はデータ領域が空の初回起動時のみ有効 | `postgres` | 既存データを残してパスワードを変える場合は DB 内のユーザーと `MIRA_DB_PASSWORD` の両方を更新 |
+| スキーマ DDL | `docker/postgres/init/*.sql` を `/docker-entrypoint-initdb.d` にマウント | `postgres` | 初回起動時のみ実行。論理定義は [DB 設計](../app/docs/database-design/README.md) |
 
 ### No.6 起動・準備完了条件
 
