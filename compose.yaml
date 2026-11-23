@@ -12,6 +12,7 @@
 #   No.9 … Apache・Tomcat 設定 — mira.conf テンプレートと起動コマンド
 #
 # No.3: 全サービスは Compose の既定ネットワークに接続する（明示定義なし）。
+# 実行環境: コンテナ内は Linux（No.2）。開発ホスト OS には依存しない（docker/README.md「実行環境の想定」）。
 
 services:
   haproxy:

@@ -46,6 +46,8 @@ mira/
 | データベース       | PostgreSQL              |
 | ビルドツール       | Maven                   |
 | コンテナ         | Docker / Docker Compose |
+| 実行 OS（アプリ・ミドルウェア） | Linux（Tomcat 等は Linux コンテナ内で動作。WAR は JVM 上で実行） |
+| 開発ホスト OS     | **依存しない**（Docker / Compose で Linux コンテナを起動できればよい） |
 
 ## 4. システム構成
 
@@ -75,9 +77,9 @@ flowchart TD
 
 ## 6. 開発環境
 
-Docker Composeを利用し、ロードバランサー、Webサーバー、アプリケーションサーバー、データベースをコンテナとして管理する予定です。詳細は [Docker 開発環境](docker/README.md) を参照してください。
+Docker Compose を利用し、ロードバランサー、Web サーバー、アプリケーションサーバー、データベースをコンテナとして管理します。`compose.yaml` および `docker/` 配下の設定は、この前提で定義しています。
 
-起動方法はDocker Composeの構成確定後に追記します。
+実行環境（Linux）の詳細は §3 技術スタックおよび [Docker 開発環境](docker/README.md) の「実行環境の想定」を参照してください。起動方法の概要は Docker Compose の構成確定後に追記します。
 
 ## 7. 開発方針
 

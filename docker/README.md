@@ -2,6 +2,17 @@
 
 Docker Compose で HAProxy、Apache HTTP Server、Apache Tomcat（Spring Boot アプリを配置）、PostgreSQL を起動し、MIRA のローカル開発環境を構築する。
 
+## 実行環境の想定
+
+| 区分 | 想定 |
+| --- | --- |
+| コンテナ内（実行 OS） | **Linux**（No.2 の Docker 公式イメージ。HAProxy・Apache・Tomcat・PostgreSQL および **WAR の実行先 Tomcat** はここで動く） |
+| 開発ホスト OS | **依存しない**。Linux / Windows / macOS いずれでも、Docker Engine および Compose で **同じ `compose.yaml`** を使える |
+| WAR と OS | `mira.war` は Java バイトコードを含み、**JVM（Tomcat 上）で動くためファイル形式自体は OS 非依存**。本開発環境では **Linux 上の Tomcat 11** に配置する（No.4・No.8）。別 OS 上の Tomcat に載せ替える場合は JVM・Servlet のバージョン整合が必要で、OS そのものより **実行環境の Java/Tomcat の組み合わせ**が重要になる |
+| Maven ビルド | Dockerfile のビルドステージも Linux コンテナ内で `mvn package` する。**WAR の中身は開発ホスト OS ではなくビルド環境（イメージ）に依存**し、ホストが Windows でも Linux コンテナビルドなら同じ手順になる |
+
+`compose.yaml` の `command`（`/bin/sh`、`envsubst`、`httpd-foreground`）やボリュームのマウント先パスは、**コンテナ内 Linux** 向けであり、開発ホスト OS ごとに Compose 定義を変える想定はない。
+
 ## ディレクトリ構成
 
 ```text
