@@ -1,0 +1,215 @@
+openapi: 3.0.3
+info:
+  title: MIRA ユーザー管理 API
+  version: 0.1.0
+  description: |
+    機能設計 ab01、ac01、ad01、ae01 のパラメータ一覧に基づく仕様案。
+    認証・認可は必須。認証方式とパスワードポリシーは未確定。
+tags:
+  - name: Users
+    description: ユーザー管理
+paths:
+  /api/users:
+    post:
+      tags: [Users]
+      operationId: registerUser
+      summary: ユーザー登録（ab01）
+      externalDocs:
+        url: ./ab01-user-registration-api.md
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+      responses:
+        '201':
+          description: ユーザーを登録した。レスポンス項目は暫定。
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user_id]
+                properties:
+                  user_id:
+                    $ref: '#/components/schemas/Id'
+        '400':
+          description: 入力値が不正、または指定された部門が存在しない。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: 指定されたログイン ID は登録済み。
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/users/{userId}:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        description: 機能設計のパス項目 user_id に対応するユーザー ID。
+        schema:
+          $ref: '#/components/schemas/Id'
+    get:
+      tags: [Users]
+      operationId: getUser
+      summary: ユーザー取得（ac01）
+      externalDocs:
+        url: ./ac01-user-get-api.md
+      responses:
+        '200':
+          description: ユーザー情報を取得した。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    put:
+      tags: [Users]
+      operationId: updateUser
+      summary: ユーザー更新（ad01）
+      description: 指定した項目を更新する。省略した項目は現在の値を維持する。更新日時はサーバー側で設定する。成功時の応答は暫定。
+      externalDocs:
+        url: ./ad01-user-update-api.md
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: 更新後のユーザー情報を返す。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Users]
+      operationId: deleteUser
+      summary: ユーザー削除（ae01）
+      externalDocs:
+        url: ./ae01-user-delete-api.md
+      responses:
+        '204':
+          description: ユーザーを削除した。
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
+        '409':
+          description: 業務ルールにより対象ユーザーを削除できない。具体的な条件は未確定。
+        '500':
+          $ref: '#/components/responses/InternalError'
+components:
+  responses:
+    InvalidRequest:
+      description: パスパラメータまたは入力値が不正。
+    Unauthorized:
+      description: 認証に失敗した。
+    UserNotFound:
+      description: 指定されたユーザーが存在しない。
+    InternalError:
+      description: DB エラーなどにより処理に失敗した。
+  schemas:
+    Id:
+      type: integer
+      format: int64
+      minimum: 1
+    LoginId:
+      type: string
+      minLength: 1
+      maxLength: 64
+    UserName:
+      type: string
+      minLength: 1
+      maxLength: 128
+    Password:
+      type: string
+      format: password
+      writeOnly: true
+      description: サーバー側でハッシュ化する入力値。詳細なパスワードポリシーは未確定。
+    AuthorityCode:
+      type: string
+      enum: [ADMIN, GENERAL]
+    UserRegistration:
+      type: object
+      additionalProperties: false
+      required: [department_id, login_id, password, user_name]
+      properties:
+        department_id:
+          $ref: '#/components/schemas/Id'
+        login_id:
+          $ref: '#/components/schemas/LoginId'
+        password:
+          $ref: '#/components/schemas/Password'
+        user_name:
+          $ref: '#/components/schemas/UserName'
+        authority_code:
+          type: string
+          enum: [ADMIN, GENERAL]
+          default: GENERAL
+    UserUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        department_id:
+          $ref: '#/components/schemas/Id'
+        user_name:
+          $ref: '#/components/schemas/UserName'
+        password:
+          $ref: '#/components/schemas/Password'
+        authority_code:
+          $ref: '#/components/schemas/AuthorityCode'
+    User:
+      type: object
+      required: [user_id, department_id, login_id, user_name, authority_code, last_login_datetime, create_datetime, update_datetime]
+      properties:
+        user_id:
+          $ref: '#/components/schemas/Id'
+        department_id:
+          $ref: '#/components/schemas/Id'
+        login_id:
+          $ref: '#/components/schemas/LoginId'
+        user_name:
+          $ref: '#/components/schemas/UserName'
+        authority_code:
+          $ref: '#/components/schemas/AuthorityCode'
+        last_login_datetime:
+          type: string
+          format: date-time
+          nullable: true
+          description: 最終ログイン日時。ログイン履歴がない場合は null。
+        create_datetime:
+          type: string
+          format: date-time
+        update_datetime:
+          type: string
+          format: date-time
+    ValidationError:
+      type: object
+      description: 入力値エラーの応答形式（暫定）。
+      required: [message]
+      properties:
+        message:
+          type: string
