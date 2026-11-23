@@ -10,21 +10,21 @@ CREATE TABLE department (
     CONSTRAINT department_department_code_key UNIQUE (department_code)
 );
 
-CREATE TABLE tantosya (
-    tantosya_id     BIGSERIAL PRIMARY KEY,
+CREATE TABLE user (
+    user_id         BIGSERIAL PRIMARY KEY,
     department_id   BIGINT NOT NULL,
     login_id        VARCHAR(64) NOT NULL,
     password_hash   VARCHAR(255) NOT NULL,
-    tantosya_name    VARCHAR(128) NOT NULL,
-    authority_code   VARCHAR(32) NOT NULL DEFAULT 'GENERAL',
+    user_name       VARCHAR(128) NOT NULL,
+    authority_code  VARCHAR(32) NOT NULL DEFAULT 'GENERAL',
     last_login_datetime   TIMESTAMPTZ,
     create_datetime      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_datetime      TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT tantosya_login_id_key UNIQUE (login_id),
-    CONSTRAINT tantosya_department_id_fkey
+    CONSTRAINT user_login_id_key UNIQUE (login_id),
+    CONSTRAINT user_department_id_fkey
         FOREIGN KEY (department_id)
         REFERENCES department (department_id)
         ON DELETE RESTRICT
 );
 
-CREATE INDEX tantosya_department_id_idx ON tantosya (department_id);
+CREATE INDEX user_department_id_idx ON user (department_id);

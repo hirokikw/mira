@@ -1,4 +1,4 @@
--- 初期管理者担当者（01_schema.sql 適用後に実行）
+-- 初期管理者ユーザー（01_schema.sql 適用後に実行）
 -- 開発用ログインパスワード（平文）: admin … アプリ実装前の検証用。本番では使用しないこと。
 -- password_hash は pgcrypto の bcrypt（crypt）で生成する。
 
@@ -8,11 +8,11 @@ INSERT INTO department (department_code, department_name)
 VALUES ('ADMIN', '管理者部門')
 ON CONFLICT (department_code) DO NOTHING;
 
-INSERT INTO tantosya (
+INSERT INTO "user" (
     department_id,
     login_id,
     password_hash,
-    tantosya_name,
+    user_name,
     authority_code
 )
 SELECT
