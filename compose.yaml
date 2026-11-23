@@ -35,7 +35,7 @@ services:
       - /bin/sh
       - -c
       - |-
-        envsubst '$$MIRA_TOMCAT_URL' < /usr/local/apache2/conf/mira.conf.template > /tmp/httpd-mira.conf
+        sed "s|$${MIRA_TOMCAT_URL}|$$MIRA_TOMCAT_URL|g" /usr/local/apache2/conf/mira.conf.template > /tmp/httpd-mira.conf
         exec httpd-foreground -f /tmp/httpd-mira.conf
     volumes: &httpd-volumes # No.9
       - type: bind
