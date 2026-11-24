@@ -148,6 +148,8 @@ PostgreSQL 初回起動時に `docker/postgres/init/02_seed_admin.sql` で投入
 | ログイン ID | `admin` |
 | パスワード | `admin` |
 
+上記は **画面ログイン用** の初期ユーザーであり、`docker/confidential/db.env` の DB 接続パスワードとは別である。
+
 認証に成功するとメインメニュー（`/menu`）へ遷移する。
 
 ### 停止

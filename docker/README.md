@@ -91,7 +91,9 @@ flowchart LR
 | Apache HTTP Server → Tomcat | `httpd-1` / `httpd-2` | `tomcat-1` / `tomcat-2` | HTTP | `http://tomcat-1:8080/` / `http://tomcat-2:8080/` | 各 Apache の転送先は環境変数 `MIRA_TOMCAT_URL`（No.9）。アプリのルートパスは No.4。 |
 | Spring Boot アプリ → PostgreSQL | `tomcat-1` / `tomcat-2` | `postgres` | TCP | `postgres:5432` | 両系統が同一 DB に接続。DB 名と認証の渡し方は No.5。 |
 
-Tomcat を2台にするため、ログインセッションの引き継ぎ方法と自動削除バッチの重複実行を防ぐ方法は、アプリ設計で定義する。
+Tomcat を 2 台にするため、**ブラウザーの HTTP セッション（`JSESSIONID`）と CSRF を同一系統の Tomcat に寄せる**必要がある。開発環境では HAProxy の **セッションアフィニティ**（`haproxy.cfg` の `cookie JSESSIONID prefix`）で `httpd-1`／`tomcat-1` と `httpd-2`／`tomcat-2` を対に固定する（No.7）。アフィニティなしの roundrobin だけだと `GET /login` と `POST /login` が別 Tomcat に届き、ログインが失敗する。詳細は [bug-tracking/2026-11-24-login-failure-multi-tomcat-session.md](../bug-tracking/2026-11-24-login-failure-multi-tomcat-session.md) を参照。
+
+自動削除バッチの重複実行を防ぐ方法は、別途アプリ設計で定義する。
 
 ### No.4 アプリケーションのビルド・配置仕様
 
@@ -182,8 +184,9 @@ flowchart LR
 | --- | --- | --- |
 | 成果物パス | `docker/haproxy/haproxy.cfg` | |
 | 待受 | TCP（HTTP モード）`8080` | No.3。ホストからは `127.0.0.1:8080` |
-| バックエンド | `httpd-1:80` と `httpd-2:80` | roundrobin 等で両系統に振り分け |
-| ヘルスチェック | 各系統の Apache 経由で `GET /health/ready` | 成功は HTTP `200`（No.6）。失敗・タイムアウトの系統は対象外 |
+| バックエンド | `httpd-1:80` と `httpd-2:80` | `balance roundrobin` で両系統に振り分け |
+| セッションアフィニティ | `cookie JSESSIONID prefix nocache`。各 `server` に `cookie s1` / `cookie s2` | クライアントの `JSESSIONID` に応じて同一 Apache（＝同一 Tomcat）へ固定。Spring Security のセッション・CSRF に必須（No.3） |
+| ヘルスチェック | 各系統の Apache 経由で `GET /login` | 成功は HTTP `200`。失敗・タイムアウトの系統は対象外（実装は `haproxy.cfg`。将来 `/health/ready` へ切り替える場合は No.6 と揃える） |
 | 対象系統なし時 | クライアントへ HTTP `503` | No.6 |
 | Compose マウント | ホスト `./docker/haproxy/haproxy.cfg` → コンテナ `/usr/local/etc/haproxy/haproxy.cfg`（読み取り専用） | |
 
